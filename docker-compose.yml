@@ -3,20 +3,21 @@ version: "3.8"
 services:
   image-processing:
     build: ./image-processing
-    container_name: image-processing
     networks:
       - app_net
     restart: unless-stopped
-    # Consider adding a healthcheck if your service exposes one,
-    # e.g., test: ["CMD", "curl", "-f", "http://localhost:80/health"] if applicable.
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   postgres:
     image: pgvector/pgvector:pg17
-    container_name: pgvectors
     environment:
       POSTGRES_USER: loco
       POSTGRES_PASSWORD: loco
-      POSTGRES_DB: photos-backend_development
+      POSTGRES_DB: photos-backend_production
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
@@ -25,14 +26,13 @@ services:
       - app_net
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U loco -d photos-backend_development"]
+      test: ["CMD-SHELL", "pg_isready -U loco -d photos-backend_production"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   backend:
     build: ./photos-backend
-    container_name: backend
     command: ["start", "-e", "production"]
     environment:
       IMAGE_PROCESSING_URL: "http://image-processing:8000"
@@ -40,7 +40,7 @@ services:
       postgres:
         condition: service_healthy
       image-processing:
-        condition: service_started
+        condition: service_healthy
     networks:
       - app_net
     ports:
