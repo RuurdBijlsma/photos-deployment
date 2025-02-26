@@ -1,0 +1,9 @@
+[submodule "photos-backend"]
+	path = photos-backend
+	url = https://github.com/RuurdBijlsma/photos-backend
+[submodule "photos-processing"]
+	path = photos-processing
+	url = https://github.com/RuurdBijlsma/photos-processing
+[submodule "photos-frontend"]
+	path = photos-frontend
+	url = https://github.com/RuurdBijlsma/photos-frontend
