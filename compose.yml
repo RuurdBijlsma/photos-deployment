@@ -1,35 +1,42 @@
 version: "3.8"
 
 services:
-  nginx:
-    image: nginx:latest
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./photos-frontend/dist:/usr/share/nginx/html:ro
-      - ${THUMBNAILS_PATH}:/thumbnails:ro
+
+  reverse-proxy:
+    build:
+      context: nginx
+      args:
+        - BACKEND_URL=http://backend:7000
+    restart: unless-stopped
     ports:
-      - "80:80"
+      - "9475:9475"
     depends_on:
-      - backend
-    networks:
-      - app_net
-    restart: unless-stopped
+      backend:
+        condition: service_healthy
 
-  frontend:
-    build: nginx/photos-frontend
+  backend:
+    build: https://github.com/RuurdBijlsma/photos-backend
+    command: [ "start", "-e", "production" ]
     environment:
-      - VITE_BACKEND_URL=http://backend:9475
-    networks:
-      - app_net
-    restart: unless-stopped
-
-  image-processing:
-    build: ./image-processing
-    networks:
-      - app_net
+      PROCESSING_API_URL: "http://processing:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      processing:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:7000/_health || exit 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  processing:
+    build: https://github.com/RuurdBijlsma/photos-processing
+    command: [ "--port", "9000" ]
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9000/health || exit 1" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -44,34 +51,12 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    networks:
-      - app_net
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U loco -d photos-backend_production"]
+      test: [ "CMD-SHELL", "pg_isready -U loco -d photos-backend_production" ]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  backend:
-    build: ./photos-backend
-    command: ["start", "-e", "production"]
-    environment:
-      IMAGE_PROCESSING_URL: "http://image-processing:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      image-processing:
-        condition: service_healthy
-    networks:
-      - app_net
-    ports:
-      - "9475:9475"
-    restart: unless-stopped
-
 volumes:
   pgdata:
-
-networks:
-  app_net:
-    driver: bridge
