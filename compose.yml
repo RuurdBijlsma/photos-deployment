@@ -25,6 +25,7 @@ services:
     environment:
       PROCESSING_API_URL: "http://processing:9000"
       THUMBNAILS_DIR: "/thumbnails"
+      DATABASE_URL: "postgres://loco:loco@postgres:5432/photos-backend_production"
     depends_on:
       postgres:
         condition: service_healthy
