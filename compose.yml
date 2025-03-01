@@ -1,0 +1,77 @@
+version: "3.8"
+
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./photos-frontend/dist:/usr/share/nginx/html:ro
+      - ${THUMBNAILS_PATH}:/thumbnails:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app_net
+    restart: unless-stopped
+
+  frontend:
+    build: ./photos-frontend
+    environment:
+      - VITE_BACKEND_URL=http://backend:9475
+    networks:
+      - app_net
+    restart: unless-stopped
+
+  image-processing:
+    build: ./image-processing
+    networks:
+      - app_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: loco
+      POSTGRES_PASSWORD: loco
+      POSTGRES_DB: photos-backend_production
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U loco -d photos-backend_production"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./photos-backend
+    command: ["start", "-e", "production"]
+    environment:
+      IMAGE_PROCESSING_URL: "http://image-processing:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      image-processing:
+        condition: service_healthy
+    networks:
+      - app_net
+    ports:
+      - "9475:9475"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+
+networks:
+  app_net:
+    driver: bridge
