@@ -32,8 +32,6 @@ services:
       processing:
         condition: service_healthy
     restart: unless-stopped
-    ports:
-      - "7000:7000"
     networks:
       - app_network
     healthcheck:
