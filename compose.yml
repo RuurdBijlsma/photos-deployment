@@ -4,7 +4,7 @@ services:
       context: "https://github.com/RuurdBijlsma/photos-frontend.git"
       dockerfile: "Dockerfile"
       args:
-        - BACKEND_URL=http://backend:7000
+        - BACKEND_HOST=backend:7000
     restart: unless-stopped
     ports:
       - "80:9475"
