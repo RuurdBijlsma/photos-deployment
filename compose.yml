@@ -7,7 +7,7 @@ services:
         - BACKEND_HOST=backend:7000
     restart: unless-stopped
     ports:
-      - "80:9475"
+      - "9475:80"
     networks:
       - app_network
     depends_on:
