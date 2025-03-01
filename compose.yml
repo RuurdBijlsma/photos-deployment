@@ -3,7 +3,8 @@ version: "3.8"
 services:
   frontend:
     build:
-      context: https://github.com/RuurdBijlsma/photos-frontend
+      context: "https://github.com/RuurdBijlsma/photos-frontend"
+      dockerfile: "Dockerfile"
       args:
         - BACKEND_URL=http://backend:7000
     restart: unless-stopped
@@ -19,7 +20,9 @@ services:
       - thumbnails:/thumbnails
 
   backend:
-    build: https://github.com/RuurdBijlsma/photos-backend
+    build:
+      context: "https://github.com/RuurdBijlsma/photos-backend"
+      dockerfile: "Dockerfile"
     command: [ "start", "-e", "production" ]
     environment:
       PROCESSING_API_URL: "http://processing:9000"
@@ -41,7 +44,9 @@ services:
       - thumbnails:/thumbnails
 
   processing:
-    build: https://github.com/RuurdBijlsma/photos-processing
+    build:
+      context: "https://github.com/RuurdBijlsma/photos-processing"
+      dockerfile: "Dockerfile"
     command: [ "--port", "9000" ]
     restart: unless-stopped
     networks:
