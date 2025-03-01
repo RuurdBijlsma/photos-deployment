@@ -32,13 +32,15 @@ services:
       processing:
         condition: service_healthy
     restart: unless-stopped
+    ports:
+      - "7000:7000"
     networks:
       - app_network
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:7000/_health || exit 1" ]
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 20
     volumes:
       - thumbnails:/thumbnails
 
@@ -54,7 +56,7 @@ services:
       test: [ "CMD-SHELL", "curl -f http://localhost:9000/health || exit 1" ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
 
   postgres:
     image: pgvector/pgvector:pg17
@@ -71,7 +73,7 @@ services:
       test: [ "CMD-SHELL", "pg_isready -U loco -d photos-backend_production" ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
 
 volumes:
   pgdata:
