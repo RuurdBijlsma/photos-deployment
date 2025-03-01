@@ -15,14 +15,15 @@ services:
       backend:
         condition: service_healthy
     volumes:
-      - thumbnail_cache:/var/cache/nginx  # Persist proxy cache
-      - thumbnails:/thumbnails  # Persist thumbnails directory
+      - thumbnail_cache:/var/cache/nginx
+      - thumbnails:/thumbnails
 
   backend:
     build: https://github.com/RuurdBijlsma/photos-backend
     command: [ "start", "-e", "production" ]
     environment:
       PROCESSING_API_URL: "http://processing:9000"
+      THUMBNAILS_DIR: "/thumbnails"
     depends_on:
       postgres:
         condition: service_healthy
@@ -36,6 +37,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    volumes:
+      - thumbnails:/thumbnails
 
   processing:
     build: https://github.com/RuurdBijlsma/photos-processing
