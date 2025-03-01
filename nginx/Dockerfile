@@ -4,7 +4,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package.json and package-lock.json to leverage Docker caching
-COPY ../photos-frontend/package.json ../photos-frontend/package-lock.json ./
+COPY photos-frontend/package.json ../photos-frontend/package-lock.json ./
 
 RUN npm install --frozen-lockfile
 

@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    build: ./photos-frontend
+    build: nginx/photos-frontend
     environment:
       - VITE_BACKEND_URL=http://backend:9475
     networks:
