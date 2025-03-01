@@ -4,3 +4,6 @@
 [submodule "photos-processing"]
 	path = photos-processing
 	url = https://github.com/RuurdBijlsma/photos-processing
+[submodule "nginx/photos-frontend"]
+	path = nginx/photos-frontend
+	url = https://github.com/RuurdBijlsma/photos-frontend
