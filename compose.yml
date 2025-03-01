@@ -1,7 +1,7 @@
 services:
   frontend:
     build:
-      context: "https://github.com/RuurdBijlsma/photos-frontend"
+      context: "https://github.com/RuurdBijlsma/photos-frontend.git"
       dockerfile: "Dockerfile"
       args:
         - BACKEND_URL=http://backend:7000
@@ -19,7 +19,7 @@ services:
 
   backend:
     build:
-      context: "https://github.com/RuurdBijlsma/photos-backend"
+      context: "https://github.com/RuurdBijlsma/photos-backend.git"
       dockerfile: "Dockerfile"
     command: [ "start", "-e", "production" ]
     environment:
@@ -43,7 +43,7 @@ services:
 
   processing:
     build:
-      context: "https://github.com/RuurdBijlsma/photos-processing"
+      context: "https://github.com/RuurdBijlsma/photos-processing.git"
       dockerfile: "Dockerfile"
     command: [ "--port", "9000" ]
     restart: unless-stopped
