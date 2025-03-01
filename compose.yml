@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-
   reverse-proxy:
     build:
       context: nginx
@@ -9,10 +8,15 @@ services:
         - BACKEND_URL=http://backend:7000
     restart: unless-stopped
     ports:
-      - "9475:9475"
+      - "80:9475"
+    networks:
+      - app_network
     depends_on:
       backend:
         condition: service_healthy
+    volumes:
+      - thumbnail_cache:/var/cache/nginx  # Persist proxy cache
+      - thumbnails:/thumbnails  # Persist thumbnails directory
 
   backend:
     build: https://github.com/RuurdBijlsma/photos-backend
@@ -25,6 +29,8 @@ services:
       processing:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - app_network
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:7000/_health || exit 1" ]
       interval: 5s
@@ -35,6 +41,8 @@ services:
     build: https://github.com/RuurdBijlsma/photos-processing
     command: [ "--port", "9000" ]
     restart: unless-stopped
+    networks:
+      - app_network
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:9000/health || exit 1" ]
       interval: 5s
@@ -49,9 +57,9 @@ services:
       POSTGRES_DB: photos-backend_production
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     restart: unless-stopped
+    networks:
+      - app_network
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U loco -d photos-backend_production" ]
       interval: 5s
@@ -60,3 +68,9 @@ services:
 
 volumes:
   pgdata:
+  thumbnail_cache:  # For NGINX proxy cache
+  thumbnails:  # For thumbnail static files
+
+networks:
+  app_network:
+    driver: bridge
