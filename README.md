@@ -9,7 +9,7 @@ Photos. It uses a Docker Compose file to orchestrate the following services:
 - **Postgres** (with pgvector)
 - **Nginx** (for hosting thumbnails, and reverse proxy)
 
-The individual repositories for the frontend, backend and image-processing service are included as Git submodules.
+The individual repositories for the frontend, backend and image-processing service are linked by git link in the compose.yml file.
 
 ## Prerequisites
 
@@ -19,20 +19,20 @@ The individual repositories for the frontend, backend and image-processing servi
 
 ## Cloning the Repository
 
-Clone the repository along with its submodules:
+Clone the repository:
 
 ```bash
-git clone --recurse-submodules https://github.com/RuurdBijlsma/photos-deployment
+git clone https://github.com/RuurdBijlsma/photos-deployment
 ```
 
 ## Starting the Application
 
-Navigate to the repository root where the docker-compose.yml file is located.
+Navigate to the repository root where the compose.yml file is located.
 
 Build and start all services using Docker Compose:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 This command will build the necessary images (if not already built) and start the containers.
@@ -53,18 +53,8 @@ This command will build the necessary images (if not already built) and start th
 
 Copy the `example.env` file to `.env` and configure the fields.
 
-## Updating Submodules
-
-If there are updates in the submodule repositories, you can pull the latest changes by running:
-
-```bash
-git submodule update --remote
-```
-
-Then commit the updated submodule pointers.
-
 ## Troubleshooting
 
 ### Containers Not Starting:
 
-Check the container logs using docker-compose logs <service-name>.
+Check the container logs using docker compose logs <service-name>.
